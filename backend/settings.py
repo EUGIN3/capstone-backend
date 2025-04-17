@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     'api',
-
-
+    'knox',
+    'django_rest_passwordreset'
 ]
 
 MIDDLEWARE = [
@@ -79,6 +79,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
