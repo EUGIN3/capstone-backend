@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 
+from django_rest_passwordreset.signals import reset_password_token_created
+from django.core.mail import EmailMultiAlternatives
+from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.html import strip_tags
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -41,3 +47,26 @@ class CustomUser(AbstractUser):
         return self.email
 
 
+@receiver(reset_password_token_created)
+def password_reset_token_created(reset_password_token, *args, **kwargs):
+    sitelink = "http://localhost:5173/"
+    token = "{}".format(reset_password_token.key)
+    full_link = str(sitelink)+str("reset-password/")+str(token)
+    
+    context = {
+        'full_link' : full_link,
+        'email_address' : reset_password_token.user.email,
+    }
+
+    html_message = render_to_string("reset_password_email.html", context=context)
+    plain_message = strip_tags(html_message)
+
+    msg = EmailMultiAlternatives(
+        subject= "Request for resetting password for {title}".format(title=reset_password_token.user.email),
+        body=plain_message,
+        from_email="sender@example.com",
+        to={reset_password_token.user.email},
+    )
+
+    msg.attach_alternative(html_message, "text/html")
+    msg.send()
