@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from knox.models import AuthToken
 from django.contrib.auth import get_user_model, authenticate
 from . import serializers
+from . import models
 
 User = get_user_model()
 
@@ -44,7 +45,41 @@ class LoginViewset(viewsets.ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+
+    def list(self, request):
+        queryset = User.objects.all()
+        serializer = serializers.RegisterSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+
+
+class SetAppointmentViewSet(viewsets.ViewSet):
+    serializer_class = serializers.AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid():
+            appointment = serializer.save(user=request.user)
+
+            return Response(
+                serializers.AppointmentSerializer(appointment).data,
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class AppointmentsListViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAdminUser]
+
+    def list(self, request):
+        appointments = models.Appointment.objects.all()
+        serializer = serializers.AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)

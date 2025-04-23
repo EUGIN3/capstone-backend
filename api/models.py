@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import strip_tags
+from django.conf import settings
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -25,7 +26,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
 
         return self.create_user(email, password, **extra_fields)
-    
+
 
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=250, unique=True)
@@ -47,6 +48,7 @@ class CustomUser(AbstractUser):
         return self.email
 
 
+# For sending an email for forgot password.
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
     sitelink = "http://localhost:5173/"
@@ -70,3 +72,22 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
 
     msg.attach_alternative(html_message, "text/html")
     msg.send()
+
+
+# Appointment class.
+class Appointment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointments')
+    name = models.CharField(max_length=100)
+    time = models.TimeField()
+    date = models.DateField()
+    phone_number = models.CharField(max_length=15)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='appointment_images/', blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} - {self.date} at {self.time}"
+
+    @property
+    def email(self):
+        return self.user.email

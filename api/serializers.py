@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from . import models
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -25,17 +26,10 @@ class LoginSerializer(serializers.Serializer):
         to_return.pop('password', None)
         return to_return
 
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer to return all users. Excludes sensitive fields like password.
-    """
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email', read_only=True)
+
     class Meta:
-        model = User
-        # Exclude password and other sensitive information
-        exclude = ('password',)
-        # If you prefer to list specific fields, you can use:
-        # fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
-
-
-
-
+        model = models.Appointment
+        fields = ['id', 'name', 'time', 'date', 'phone_number', 'email', 'description', 'image', 'is_approved']
