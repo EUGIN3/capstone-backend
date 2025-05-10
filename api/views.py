@@ -1,4 +1,5 @@
 from rest_framework import permissions, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from knox.models import AuthToken
 from django.contrib.auth import get_user_model, authenticate
@@ -33,9 +34,12 @@ class LoginViewset(viewsets.ViewSet):
             user = authenticate(request, email=email, password=password)
             if user:
                 _, token = AuthToken.objects.create(user)
+
+                user_data = serializers.UserInfoSerializer(user).data
+
                 return Response(
                     {
-                        'user': self.serializer_class(user).data,
+                        'user': user_data,
                         'token': token,
                     }
                 )
@@ -43,18 +47,26 @@ class LoginViewset(viewsets.ViewSet):
                 return Response({"error":"Invalid Credentials",}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        
 
 class UserViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAdminUser]
 
     def list(self, request):
         queryset = User.objects.all()
-        serializer = serializers.RegisterSerializer(queryset, many=True)
+        serializer = serializers.UserInfoSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
+class UserProfileViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def list(self, request):
+        user = request.user
+        serializer = serializers.UserInfoSerializer(user)
+        return Response(serializer.data)
+    
 
 class SetAppointmentViewSet(viewsets.ViewSet):
     serializer_class = serializers.AppointmentSerializer
@@ -75,6 +87,7 @@ class SetAppointmentViewSet(viewsets.ViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
+
 
 class AppointmentsListViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAdminUser]

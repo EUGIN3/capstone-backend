@@ -27,6 +27,23 @@ class LoginSerializer(serializers.Serializer):
         return to_return
 
 
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'facebook_link',
+            'is_staff',
+            'is_superuser',
+        ]
+        read_only_fields = fields
+        
+
 class AppointmentSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email', read_only=True)
 
