@@ -35,9 +35,10 @@ class CustomUser(AbstractUser):
     # Not required fields in registration
     first_name  = models.CharField(max_length=500, null=True, blank=True)
     last_name = models.CharField(max_length=500, null=True, blank=True)
+    address = models.CharField(max_length=500, null=True, blank=True)
 
     phone_number = models.CharField(max_length=20, null=True, blank=True)
-    facebook_link = models.URLField(max_length=500, null=True, blank=True)
+    facebook_link = models.CharField(max_length=500, null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -48,6 +49,52 @@ class CustomUser(AbstractUser):
         return self.email
 
 
+# class AppointmentInformation(models.Model):
+#     date = models.CharField(max_length=100)
+#     time = models.CharField(max_length=100)
+#     image = models.ImageField(upload_to='appointments/')
+#     first_name = models.CharField(max_length=100)
+#     last_name = models.CharField(max_length=100)
+#     email = models.EmailField()
+#     address = models.TextField()
+#     phone_number = models.CharField(max_length=20)
+#     facebook_link = models.CharField(max_length=255)
+#     description = models.TextField()
+#     date_set = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return f"{self.first_name} {self.last_name} - {self.date}"
+    
+
+# Appointment class.
+class Appointment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointments')
+    name = models.CharField(max_length=100)
+    time = models.TimeField()
+    date = models.DateField()
+    phone_number = models.CharField(max_length=15)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='appointment_images/', blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} - {self.date} at {self.time}"
+
+    @property
+    def email(self):
+        return self.user.email
+    
+
+
+
+
+
+
+
+
+
+
+    
 # For sending an email for forgot password.
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
@@ -72,22 +119,3 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
 
     msg.attach_alternative(html_message, "text/html")
     msg.send()
-
-
-# Appointment class.
-class Appointment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointments')
-    name = models.CharField(max_length=100)
-    time = models.TimeField()
-    date = models.DateField()
-    phone_number = models.CharField(max_length=15)
-    description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='appointment_images/', blank=True, null=True)
-    is_approved = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.name} - {self.date} at {self.time}"
-
-    @property
-    def email(self):
-        return self.user.email

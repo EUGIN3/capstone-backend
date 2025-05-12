@@ -7,7 +7,7 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'password')
+        fields = '__all__'
         extra_kwargs = {
             'password' : {'write_only':True}
         }
@@ -36,7 +36,8 @@ class UserInfoSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'phone_number',
+            'last_name',
+            'address',
             'facebook_link',
             'is_staff',
             'is_superuser',
