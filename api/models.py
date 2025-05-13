@@ -32,7 +32,6 @@ class CustomUser(AbstractUser):
     email = models.EmailField(max_length=250, unique=True)
     username = models.CharField(max_length=200, null=True, blank=True)
 
-    # Not required fields in registration
     first_name  = models.CharField(max_length=500, null=True, blank=True)
     last_name = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=500, null=True, blank=True)
@@ -47,43 +46,42 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
-
-
-# class AppointmentInformation(models.Model):
-#     date = models.CharField(max_length=100)
-#     time = models.CharField(max_length=100)
-#     image = models.ImageField(upload_to='appointments/')
-#     first_name = models.CharField(max_length=100)
-#     last_name = models.CharField(max_length=100)
-#     email = models.EmailField()
-#     address = models.TextField()
-#     phone_number = models.CharField(max_length=20)
-#     facebook_link = models.CharField(max_length=255)
-#     description = models.TextField()
-#     date_set = models.CharField(max_length=100)
-
-#     def __str__(self):
-#         return f"{self.first_name} {self.last_name} - {self.date}"
     
 
 # Appointment class.
 class Appointment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointments')
-    name = models.CharField(max_length=100)
-    time = models.TimeField()
-    date = models.DateField()
-    phone_number = models.CharField(max_length=15)
-    description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='appointment_images/', blank=True, null=True)
-    is_approved = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.name} - {self.date} at {self.time}"
+    date = models.DateField()  # Handles dates like 2025-05-14
+    time = models.TimeField()  # Handles times like 14:30:00
+
+    image = models.ImageField(upload_to='appointment_images/', null=True, blank=True)
+    address = models.TextField(max_length=500, null=True, blank=True)
+    facebook_link = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(max_length=500, null=True, blank=True)
+
+    # Automatically set when the appointment is created
+    date_set = models.DateTimeField(auto_now_add=True)
 
     @property
     def email(self):
         return self.user.email
     
+    @property
+    def first_name(self):
+        return self.user.first_name
+
+    @property
+    def last_name(self):
+        return self.user.last_name
+
+    @property
+    def phone_number(self):
+        return self.user.phone_number  
+    
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.date}"
 
 
 

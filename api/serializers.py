@@ -47,7 +47,11 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 class AppointmentSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    phone_number = serializers.CharField(source='user.phone_number', read_only=True)
 
     class Meta:
         model = models.Appointment
-        fields = ['id', 'name', 'time', 'date', 'phone_number', 'email', 'description', 'image', 'is_approved']
+        fields = '__all__'
+        read_only_fields = ['user']

@@ -76,10 +76,10 @@ class SetAppointmentViewSet(viewsets.ViewSet):
         serializer = self.serializer_class(data=request.data)
         
         if serializer.is_valid():
-            appointment = serializer.save(user=request.user)
+            serializer.save(user = request.user)
 
             return Response(
-                serializers.AppointmentSerializer(appointment).data,
+                {"message": "Appointment created successfully"}, # For development purposes only.
                 status=status.HTTP_201_CREATED
             )
         else:
