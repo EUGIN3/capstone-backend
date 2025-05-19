@@ -96,3 +96,47 @@ class AppointmentsListViewSet(viewsets.ViewSet):
         appointments = models.Appointment.objects.all()
         serializer = serializers.AppointmentSerializer(appointments, many=True)
         return Response(serializer.data)
+    
+    def partial_update(self, request, pk=None):
+        try:
+            appointment = models.Appointment.objects.get(pk=pk)
+        except models.Appointment.DoesNotExist:
+            return Response(
+                {"detail": "Appointment not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = serializers.AppointmentSerializer(appointment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserAppointmentsViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        user = request.user
+        appointments = models.Appointment.objects.filter(user=user)
+        serializer = serializers.AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)
+        
+    def partial_update(self, request, pk=None):
+        appointment = models.Appointment.objects.get(pk=pk, user=request.user)
+        
+        # Make a mutable copy of request data
+        data = request.data.copy()
+
+        data.pop('appointment_status', None)
+
+        serializer = serializers.AppointmentSerializer(appointment, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        appointment = models.Appointment.objects.get(pk=pk, user=request.user)
+        appointment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

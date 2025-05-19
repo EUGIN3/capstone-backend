@@ -59,6 +59,7 @@ class Appointment(models.Model):
     address = models.TextField(max_length=500, null=True, blank=True)
     facebook_link = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(max_length=500, null=True, blank=True)
+    appointment_status = models.CharField(max_length=100, default='pending')
 
     # Automatically set when the appointment is created
     date_set = models.DateTimeField(auto_now_add=True)
@@ -79,14 +80,8 @@ class Appointment(models.Model):
     def phone_number(self):
         return self.user.phone_number  
     
-
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.date}"
-
-
-
-
-
 
 
 
