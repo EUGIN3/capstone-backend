@@ -79,7 +79,7 @@ class SetAppointmentViewSet(viewsets.ViewSet):
             serializer.save(user = request.user)
 
             return Response(
-                {"message": "Appointment created successfully"}, # For development purposes only.
+                {"message": "Appointment created successfully"},
                 status=status.HTTP_201_CREATED
             )
         else:

@@ -53,7 +53,7 @@ class Appointment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='appointments')
 
     date = models.DateField()  # Handles dates like 2025-05-14
-    time = models.TimeField()  # Handles times like 14:30:00
+    time = models.CharField(max_length=255, null=True, blank=True) 
 
     image = models.ImageField(upload_to='appointment_images/', null=True, blank=True)
     address = models.TextField(max_length=500, null=True, blank=True)
