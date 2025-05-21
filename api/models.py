@@ -82,8 +82,17 @@ class Appointment(models.Model):
     
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.date}"
+    
 
 
+class BusyDate(models.Model):
+    date = models.DateField()
+    reason = models.TextField(max_length=500, null=True, blank=True)
+
+
+# class BusyTime(models.Model):
+#     time = models.CharField(max_length=255, null=True, blank=True)
+#     reason = models.TextField(max_length=500, null=True, blank=True)
 
 
 
