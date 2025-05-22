@@ -6,6 +6,11 @@ from django.contrib.auth import get_user_model, authenticate
 from . import serializers
 from . import models
 
+
+import os, requests, base64
+from dotenv import load_dotenv
+import time
+
 User = get_user_model()
 
 class RegisterViewset(viewsets.ViewSet):
@@ -167,4 +172,66 @@ class UnavailabilityViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
-        
+
+
+
+
+
+
+from django.conf import settings
+
+load_dotenv()
+
+class YourViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='generate-image')
+    def generate_image(self, request):
+        prompt = request.data.get("prompt")
+        if not prompt:
+            return Response({"error": "Prompt is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        STABILITY_API_KEY = os.getenv('STABILITY_API_KEY')
+        API_HOST = "https://api.stability.ai"
+        ENGINE_ID = "stable-diffusion-xl-1024-v1-0"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"Bearer {STABILITY_API_KEY}"
+        }
+
+        payload = {
+            "text_prompts": [{"text": prompt}],
+            "cfg_scale": 7,
+            "clip_guidance_preset": "FAST_BLUE",
+            "height": 896,
+            "width": 1152,
+            "samples": 1,
+            "steps": 30
+        }
+
+        response = requests.post(f"{API_HOST}/v1/generation/{ENGINE_ID}/text-to-image", headers=headers, json=payload)
+
+        if response.status_code != 200:
+            return Response({"error": response.text}, status=response.status_code)
+
+        data = response.json()
+        image_base64 = data.get("artifacts", [])[0].get("base64")
+
+        # Save image locally
+        image_data = base64.b64decode(image_base64)
+        file_name = f"generated_image_{int(time.time())}.png"
+        file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+
+        # Ensure media folder exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "wb") as f:
+            f.write(image_data)
+
+        # Build accessible URL for frontend
+        file_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
+
+        return Response({
+            "image": image_base64,    # base64 string for immediate use if wanted
+            "file_url": file_url      # URL to the saved image
+        })

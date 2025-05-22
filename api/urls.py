@@ -10,6 +10,9 @@ router.register('set_appointments', views.SetAppointmentViewSet, basename='set_a
 router.register('appointments', views.AppointmentsListViewSet, basename='appointments')
 router.register('user_appointments', views.UserAppointmentsViewSet, basename='user_appointments')
 
-router.register('unavailability', views.UnavailabilityViewSet, basename='unavailability')    
+router.register('unavailability', views.UnavailabilityViewSet, basename='unavailability')
+
+
+router.register(r'yourmodel', views.YourViewSet, basename='yourmodel')
 urlpatterns = router.urls
 
