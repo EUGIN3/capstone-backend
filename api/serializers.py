@@ -2,6 +2,10 @@ from rest_framework import serializers
 from . import models
 from django.contrib.auth import get_user_model
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -55,3 +59,18 @@ class AppointmentSerializer(serializers.ModelSerializer):
         model = models.Appointment
         fields = '__all__'
         read_only_fields = ['user']
+
+
+
+class UnavailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Unavailability
+        fields = [
+            'id',
+            'date',
+            'slot_one',
+            'slot_two',
+            'slot_three',
+            'slot_four',
+            'slot_five',
+        ]

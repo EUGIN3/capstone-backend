@@ -140,3 +140,31 @@ class UserAppointmentsViewSet(viewsets.ViewSet):
         appointment = models.Appointment.objects.get(pk=pk, user=request.user)
         appointment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class UnavailabilityViewSet(viewsets.ModelViewSet):
+    queryset = models.Unavailability.objects.all()
+    serializer_class = serializers.UnavailabilitySerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        date = request.data.get("date")
+        if not date:
+            return Response({"error": "Date is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Check if an unavailability entry already exists for the date
+            instance = models.Unavailability.objects.get(date=date)
+            serializer = self.get_serializer(instance, data=request.data)
+        except models.Unavailability.DoesNotExist:
+            # If it doesn't exist, create a new one
+            serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+        

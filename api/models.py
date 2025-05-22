@@ -84,16 +84,17 @@ class Appointment(models.Model):
         return f"{self.first_name} {self.last_name} - {self.date}"
     
 
+class Unavailability(models.Model):
+    date = models.DateField(unique=True)
 
-class BusyDate(models.Model):
-    date = models.DateField()
-    reason = models.TextField(max_length=500, null=True, blank=True)
+    slot_one = models.BooleanField(default=False)   # 7:00 - 8:30 AM
+    slot_two = models.BooleanField(default=False)   # 8:30 - 10:00 AM
+    slot_three = models.BooleanField(default=False) # 10:00 - 11:30 AM
+    slot_four = models.BooleanField(default=False)  # 1:00 - 2:30 PM
+    slot_five = models.BooleanField(default=False)  # 2:30 - 4:00 PM
 
-
-# class BusyTime(models.Model):
-#     time = models.CharField(max_length=255, null=True, blank=True)
-#     reason = models.TextField(max_length=500, null=True, blank=True)
-
+    def __str__(self):
+        return f"Unavailability on {self.date}"
 
 
     
