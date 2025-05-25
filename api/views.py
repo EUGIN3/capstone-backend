@@ -7,6 +7,7 @@ from . import serializers
 from . import models
 
 
+from django.conf import settings
 import os, requests, base64
 from dotenv import load_dotenv
 import time
@@ -178,7 +179,7 @@ class UnavailabilityViewSet(viewsets.ModelViewSet):
 
 
 
-from django.conf import settings
+
 
 load_dotenv()
 
