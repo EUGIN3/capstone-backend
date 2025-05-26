@@ -151,7 +151,7 @@ class UserAppointmentsViewSet(viewsets.ViewSet):
 class UnavailabilityViewSet(viewsets.ModelViewSet):
     queryset = models.Unavailability.objects.all()
     serializer_class = serializers.UnavailabilitySerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         date = request.data.get("date")
@@ -174,16 +174,8 @@ class UnavailabilityViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-
-
-
-
-
-
-
 load_dotenv()
-
-class YourViewSet(viewsets.ViewSet):
+class ImageGenerationViewset(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='generate-image')
     def generate_image(self, request):
         prompt = request.data.get("prompt")
@@ -233,6 +225,6 @@ class YourViewSet(viewsets.ViewSet):
         file_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
 
         return Response({
-            "image": image_base64,    # base64 string for immediate use if wanted
-            "file_url": file_url      # URL to the saved image
+            "image": image_base64,
+            "file_url": file_url,
         })

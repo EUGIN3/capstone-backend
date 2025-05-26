@@ -13,6 +13,6 @@ router.register('user_appointments', views.UserAppointmentsViewSet, basename='us
 router.register('unavailability', views.UnavailabilityViewSet, basename='unavailability')
 
 
-router.register(r'yourmodel', views.YourViewSet, basename='yourmodel')
+router.register(r'yourmodel', views.ImageGenerationViewset, basename='yourmodel')
 urlpatterns = router.urls
 
