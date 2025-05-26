@@ -174,6 +174,17 @@ class UnavailabilityViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
+    def list(self, request):
+        date = request.query_params.get('date')
+        queryset = self.get_queryset()
+
+        if date:    
+            queryset = queryset.filter(date=date)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 load_dotenv()
 class ImageGenerationViewset(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='generate-image')
